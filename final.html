@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>OW2陣容模擬器</title>
+  <style type="text/css">
+    ::-webkit-scrollbar {
+      display: none
+    }
+
+    .title_logo {
+      text-align: center;
+      width: auto;
+      font-family: oxxo, serif;
+      color: aliceblue;
+      font-size: 230%;
+    }
+
+    .enemy {
+      position: fixed;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      color: red;
+      align-items: center;
+      font-size: x-large;
+    }
+
+    .team {
+      position: fixed;
+      top: 37%;
+      width: 100%;
+      height: 20%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: greenyellow;
+      font-size: x-large;
+    }
+
+    .info {
+      position: fixed;
+      top: 40%;
+      right: 0%;
+      z-index: 1;
+    }
+
+    .hero {
+      position: fixed;
+      bottom: 0%;
+      width: auto;
+      display: flex;
+      height: 35%;
+      justify-content: center;
+      color: aliceblue;
+    }
+
+    .Hero {
+      width: 80px;
+    }
+
+    body {
+      background-color: black;
+      justify-content: center;
+      z-index: 0;
+    }
+
+    div {
+      height: auto;
+      width: auto;
+    }
+
+    nav {
+      font-size: 0;
+    }
+
+    .container {
+      position: fixed;
+      font-size: 140%;
+      text-align: left;
+      color: whitesmoke;
+      top: 89.4%;
+      left: 49.5%;
+      transform: translate(-50%, -50%);
+    }
+
+    .start {
+      border-radius: 40%;
+      position: fixed;
+      top: 90%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .backvideo {
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 2;
+    }
+
+    .choose_team {
+      position: fixed;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      top: 30%;
+      color: greenyellow;
+    }
+
+    .choose_hero {
+      position: fixed;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      bottom: 37%;
+      color: aquamarine;
+    }
+
+    dialog {
+      position: absolute;
+      width: 700px;
+      height: 500px;
+      left: calc(50% - 350px);
+      top: calc(50% - 250px);
+      color: white;
+      border: none;
+      box-shadow: 0 2px 6px #ccc;
+      border-radius: 10px;
+      background-color: rgba(255, 165, 0, 0.35);
+      border: 1px solid rgb(255, 140, 0);
+      text-align: justify;
+    }
+
+    .navbar {
+      width: 150px;
+      overflow: hidden;
+      background-color: #333;
+      box-sizing: border-box;
+      display: inline-flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dropdown {
+      float: left;
+      overflow: hidden;
+    }
+
+    .dropdown .dropbtn {
+      font-weight: bold;
+      width: 150px;
+      font-size: 16px;
+      border: none;
+      outline: none;
+      color: white;
+      box-sizing: border-box;
+      padding: 14px 16px;
+      background-color: inherit;
+      font-family: inherit;
+      margin: 0;
+    }
+
+    .navbar a:hover,
+    .dropdown:hover .dropbtn {
+      background-color: orange;
+    }
+
+    .dropdown-content {
+      width: 150px;
+      height: auto;
+      overflow: auto;
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+      z-index: 1;
+    }
+
+    .dropdown-content div {
+      float: none;
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+      font-size: medium;
+    }
+
+    .dropdown-content div:hover {
+      background-color: #ddd;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    * {
+      padding: 0;
+      margin: 0;
+    }
+
+    .intro_main {
+      padding: 0;
+      margin: 0 auto;
+      width: 90%;
+    }
+
+    .intro_sub {
+      padding: 0;
+      margin: 0 auto;
+      width: 98%;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+  <script>
+    const hero_list = "垃圾鎮女王 席格馬 攔路豬 札莉雅 歐瑞莎 毀滅拳王 溫斯頓 火爆鋼球 萊茵哈特 DVA 半藏 卡西迪 壁壘機兵 士兵76 奪命女 小美 托比昂 死神 法拉 源氏 炸彈鼠 索潔恩 艾西 辛梅塔 迴音 閃光 駭影 安娜 巴帝斯特 慈悲 碧姬 禪亞塔 莫伊拉 路西歐 霧子";
+    const tank_list = "垃圾鎮女王 席格馬 攔路豬 札莉雅 歐瑞莎 毀滅拳王 溫斯頓 火爆鋼球 萊茵哈特 DVA"
+    const dps_list = "半藏 卡西迪 壁壘機兵 士兵76 奪命女 小美 托比昂 死神 法拉 源氏 炸彈鼠 索潔恩 艾西 辛梅塔 迴音 閃光 駭影";
+    const sup_list = "安娜 巴帝斯特 慈悲 碧姬 禪亞塔 莫伊拉 路西歐 霧子";
+    var hero = hero_list.split(' ');
+    var hero_select = {};
+    var counter_cnt = {};
+    var counter_list = [
+      [hero[12], hero[31], hero[15], hero[4]],
+      [hero[4], hero[17], hero[19], hero[8]],
+      [hero[27], hero[3], hero[14], hero[17]],
+      [hero[18], hero[26], hero[31], hero[12]],
+      [hero[6], hero[31], hero[20], hero[17]],
+      [hero[17], hero[18], hero[19], hero[24]],
+      [hero[2], hero[27], hero[20], hero[32]],
+      [hero[26], hero[17], hero[12], hero[18]],
+      [hero[17], hero[12], hero[18], hero[20]],
+      [hero[26], hero[3], hero[2], hero[20]],
+      [hero[18], hero[30], hero[3], hero[27]],
+      [hero[14], hero[6], hero[28], hero[25]],
+      [hero[2], hero[20], hero[27], hero[17]],
+      [hero[2], hero[6], hero[19], hero[1]],
+      [hero[6], hero[7], hero[21], hero[8]],
+      [hero[18], hero[26], hero[24], hero[13]],
+      [hero[18], hero[14], hero[27], hero[24]],
+      [hero[14], hero[24], hero[18], hero[31]],
+      [hero[14], hero[10], hero[21], hero[13]],
+      [hero[18], hero[30], hero[3], hero[27]],
+      [hero[18], hero[34], hero[24], hero[14]],
+      [hero[6], hero[3], hero[14], hero[33]],
+      [hero[14], hero[10], hero[25], hero[8]],
+      [hero[9], hero[18], hero[6], hero[0]],
+      [hero[14], hero[21], hero[10], hero[26]],
+      [hero[6], hero[30], hero[18], hero[16]],
+      [hero[10], hero[20], hero[14], hero[25]],
+      [hero[9], hero[14], hero[0], hero[25]],
+      [hero[9], hero[19], hero[10], hero[2]],
+      [hero[14], hero[6], hero[2], hero[21]],
+      [hero[12], hero[18], hero[20], hero[10]],
+      [hero[0], hero[6], hero[14], hero[19]],
+      [hero[14], hero[26], hero[7], hero[6]],
+      [hero[18], hero[16], hero[32], hero[12]],
+      [hero[14], hero[26], hero[21], hero[25]],];
+
+    function start() {
+
+      $("#intro").hide();
+      document.getElementById("bow").volume = 0.3;
+
+      document.onmousemove = function (event) { //當滑鼠移動
+        mousemove(percent, event);
+      }
+
+      $("#start") //滑鼠滑入變成隨機大招圖標
+        .mouseover(function () {
+          var pic = Math.floor(Math.random() * 32) + 1;
+          $(this).find("img").attr("src", "ult/" + String(pic).padStart(2, "0") + ".jpg");
+        })
+        .mouseout(function () {
+          $(this).find("img").attr("src", "start.png");
+        });
+
+      $("#about").click(function () {
+        $("#intro").show();
+        document.getElementById("intro").play();
+        document.getElementById("intro").onended = function () {
+          $("#intro").hide();
+        };
+      });
+
+      $("#music").click(function () {
+        if (document.getElementById("bow").paused) {
+          document.getElementById("music").setAttribute("src", "pause.png");
+          document.getElementById("bow").play();
+        } else {
+          document.getElementById("music").setAttribute("src", "play.png");
+          document.getElementById("bow").pause();
+        }
+      });
+
+      $("#ult").click(function () { //點擊開始後
+        $("#start").unbind();
+        $("#percent").hide();
+        $("#title_logo").fadeOut(1000, function () {
+          $("#navbar").fadeIn(1000);
+          $("#navbar2").fadeIn(1000);
+        });
+        $("#start").fadeOut(1000);
+        $("#hero").fadeIn(2000);
+        blink('#choose_hero');
+      });
+
+      for (var i = 0; i < hero.length; i++) {
+        hero_select[hero[i]] = 0;
+        counter_cnt[hero[i]] = parseInt(0);
+      }
+      //console.log(hero);
+      //console.log(hero_select);
+    }
+
+    function blink(selector) {
+      $(selector).fadeIn(2000, function () {
+        $(this).fadeOut('slow', function () {
+          blink(this);
+        });
+      });
+    }
+
+    function getPosition(element) { //拿到屬標位置
+      var x = 0;
+      var y = 0;
+      let rect = element.getBoundingClientRect();
+      x += rect.x;
+      y += rect.y;
+
+      return { x: x, y: y };
+    }
+
+    var mousemove = function (percent, event) {  //滑鼠移動改變數字
+      var posX = 0, posY = 0;
+      var e = event || window.event;
+      if (e.pageX || e.pageY) {
+        posX = e.pageX;
+        posY = e.pageY;
+      } else if (e.clientX || e.clientY) {
+        posX = event.clientX + document.documentElement.scrollLeft + document.body.scrollLeft;
+        posY = event.clientY + document.documentElement.scrollTop + document.body.scrollTop;
+      }
+      posY -= getPosition(percent).y;
+      posX -= getPosition(percent).x;
+      winy = getPosition(percent).y;
+      winx = window.innerWidth - getPosition(percent).x;
+      var posroad = Math.sqrt((posY) * (posY) + (posX) * (posX));
+      var winroad = Math.sqrt(winy * winy + winx * winx);
+      percent.innerHTML = ((100 - (posroad / winroad) * 100) * 1.03).toFixed(0);
+    }
+
+    var tank_cnt = -1, dps_cnt = -1, sup_cnt = -1, total = 0;
+    function select(selected_hero_idx) {
+      $("#enemy").fadeIn(500);
+      if (hero_select[hero[selected_hero_idx]] != 1) {//選取
+        document.getElementById("choose").cloneNode().play();
+        hero_select[hero[selected_hero_idx]] = 1;
+        counter_counter(selected_hero_idx, 1);
+        $("#" + hero[selected_hero_idx]).fadeTo("fast", 0.3);
+        if (selected_hero_idx <= 9) {
+          tank_cnt++;
+          if (tank_cnt >= 1) {
+            hero_select[document.getElementById("enemy_tank0").getAttribute("alt")] = 0;
+            counter_counter(hero.indexOf(document.getElementById("enemy_tank0").getAttribute("alt")), 0);
+            $("#" + document.getElementById("enemy_tank0").getAttribute("alt")).fadeTo("fast", 1);
+          }
+          else {
+            total++;
+          }
+          document.getElementById("enemy_tank0").setAttribute("src", document.getElementById(hero[selected_hero_idx]).getAttribute("src"));
+          document.getElementById("enemy_tank0").setAttribute("alt", document.getElementById(hero[selected_hero_idx]).getAttribute("alt"));
+          document.getElementById("enemy_tank0").setAttribute("title", document.getElementById(hero[selected_hero_idx]).getAttribute("title"));
+        }
+        else if (selected_hero_idx <= 26) {
+          dps_cnt++;
+          if (dps_cnt >= 2) {
+            hero_select[document.getElementById("enemy_dps0").getAttribute("alt")] = 0;
+            counter_counter(hero.indexOf(document.getElementById("enemy_dps0").getAttribute("alt")), 0);
+            $("#" + document.getElementById("enemy_dps0").getAttribute("alt")).fadeTo("fast", 1);
+            document.getElementById("enemy_dps0").setAttribute("src", document.getElementById("enemy_dps1").getAttribute("src"));
+            document.getElementById("enemy_dps0").setAttribute("alt", document.getElementById("enemy_dps1").getAttribute("alt"));
+            document.getElementById("enemy_dps0").setAttribute("title", document.getElementById("enemy_dps1").getAttribute("title"));
+            document.getElementById("enemy_dps1").setAttribute("src", document.getElementById(hero[selected_hero_idx]).getAttribute("src"));
+            document.getElementById("enemy_dps1").setAttribute("alt", document.getElementById(hero[selected_hero_idx]).getAttribute("alt"));
+            document.getElementById("enemy_dps1").setAttribute("title", document.getElementById(hero[selected_hero_idx]).getAttribute("title"));
+          }
+          else {
+            total++;
+            document.getElementById("enemy_dps" + dps_cnt).setAttribute("src", document.getElementById(hero[selected_hero_idx]).getAttribute("src"));
+            document.getElementById("enemy_dps" + dps_cnt).setAttribute("alt", document.getElementById(hero[selected_hero_idx]).getAttribute("alt"));
+            document.getElementById("enemy_dps" + dps_cnt).setAttribute("title", document.getElementById(hero[selected_hero_idx]).getAttribute("title"));
+          }
+        }
+        else if (selected_hero_idx <= 34) {
+          sup_cnt++;
+          if (sup_cnt >= 2) {
+            hero_select[document.getElementById("enemy_sup0").getAttribute("alt")] = 0;
+            counter_counter(hero.indexOf(document.getElementById("enemy_sup0").getAttribute("alt")), 0);
+            $("#" + document.getElementById("enemy_sup0").getAttribute("alt")).fadeTo("fast", 1);
+            document.getElementById("enemy_sup0").setAttribute("src", document.getElementById("enemy_sup1").getAttribute("src"));
+            document.getElementById("enemy_sup0").setAttribute("alt", document.getElementById("enemy_sup1").getAttribute("alt"));
+            document.getElementById("enemy_sup0").setAttribute("title", document.getElementById("enemy_sup1").getAttribute("title"));
+            document.getElementById("enemy_sup1").setAttribute("src", document.getElementById(hero[selected_hero_idx]).getAttribute("src"));
+            document.getElementById("enemy_sup1").setAttribute("alt", document.getElementById(hero[selected_hero_idx]).getAttribute("alt"));
+            document.getElementById("enemy_sup1").setAttribute("title", document.getElementById(hero[selected_hero_idx]).getAttribute("title"));
+          }
+          else {
+            total++;
+            document.getElementById("enemy_sup" + sup_cnt).setAttribute("src", document.getElementById(hero[selected_hero_idx]).getAttribute("src"));
+            document.getElementById("enemy_sup" + sup_cnt).setAttribute("alt", document.getElementById(hero[selected_hero_idx]).getAttribute("alt"));
+            document.getElementById("enemy_sup" + sup_cnt).setAttribute("title", document.getElementById(hero[selected_hero_idx]).getAttribute("title"));
+          }
+        }
+
+        if (total == 5) { //顯示我方陣容
+          $("#team").fadeIn(1000);
+          $("#choose_team").fadeIn(1500);
+          var max_site = [0, 10, 11, 27, 28];
+          //console.log(counter_cnt);
+          for (var i = 0; i <= 34; i++) {
+            if (i <= 9) {
+              if (counter_cnt[hero[i]] > counter_cnt[hero[max_site[0]]]) {
+                max_site[0] = i;
+              }
+              document.getElementById("team_tank0").setAttribute("src", document.getElementById(hero[max_site[0]]).getAttribute("src"));
+              document.getElementById("team_tank0").setAttribute("alt", document.getElementById(hero[max_site[0]]).getAttribute("alt"));
+              document.getElementById("team_tank0").setAttribute("title", document.getElementById(hero[max_site[0]]).getAttribute("title"));
+              document.getElementById("team_tank0").setAttribute("onclick", "change(0," + max_site[0] + "," + max_site[0] + ")");
+            }
+            else if (i <= 26) {
+              if (counter_cnt[hero[i]] > counter_cnt[hero[max_site[1]]]) {
+                max_site[2] = max_site[1];
+                max_site[1] = i;
+              }
+              else if (counter_cnt[hero[i]] > counter_cnt[hero[max_site[2]]] && i != max_site[1]) {
+                max_site[2] = i;
+              }
+              document.getElementById("team_dps0").setAttribute("src", document.getElementById(hero[max_site[1]]).getAttribute("src"));
+              document.getElementById("team_dps0").setAttribute("alt", document.getElementById(hero[max_site[1]]).getAttribute("alt"));
+              document.getElementById("team_dps0").setAttribute("title", document.getElementById(hero[max_site[1]]).getAttribute("title"));
+              document.getElementById("team_dps0").setAttribute("onclick", "change(0," + max_site[1] + "," + max_site[2] + ")");
+
+              document.getElementById("team_dps1").setAttribute("src", document.getElementById(hero[max_site[2]]).getAttribute("src"));
+              document.getElementById("team_dps1").setAttribute("alt", document.getElementById(hero[max_site[2]]).getAttribute("alt"));
+              document.getElementById("team_dps1").setAttribute("title", document.getElementById(hero[max_site[2]]).getAttribute("title"));
+              document.getElementById("team_dps1").setAttribute("onclick", "change(1," + max_site[2] + "," + max_site[1] + ")");
+            }
+            else if (i <= 34) {
+              if (counter_cnt[hero[i]] > counter_cnt[hero[max_site[3]]]) {
+                max_site[4] = max_site[3];
+                max_site[3] = i;
+              }
+              else if (counter_cnt[hero[i]] > counter_cnt[hero[max_site[4]]] && i != max_site[3]) {
+                max_site[4] = i;
+              }
+              document.getElementById("team_sup0").setAttribute("src", document.getElementById(hero[max_site[3]]).getAttribute("src"));
+              document.getElementById("team_sup0").setAttribute("alt", document.getElementById(hero[max_site[3]]).getAttribute("alt"));
+              document.getElementById("team_sup0").setAttribute("title", document.getElementById(hero[max_site[3]]).getAttribute("title"));
+              document.getElementById("team_sup0").setAttribute("onclick", "change(0," + max_site[3] + "," + max_site[4] + ")");
+
+              document.getElementById("team_sup1").setAttribute("src", document.getElementById(hero[max_site[4]]).getAttribute("src"));
+              document.getElementById("team_sup1").setAttribute("alt", document.getElementById(hero[max_site[4]]).getAttribute("alt"));
+              document.getElementById("team_sup1").setAttribute("title", document.getElementById(hero[max_site[4]]).getAttribute("title"));
+              document.getElementById("team_sup1").setAttribute("onclick", "change(1," + max_site[4] + "," + max_site[3] + ")");
+            }
+          }
+        }
+      }
+    }
+
+    function change(num, change_hero_idx, another_hero_idx) {
+      document.getElementById("choose").cloneNode().play();
+      var changeto = change_hero_idx + 1;
+      if (change_hero_idx <= 9) {
+        changeto %= 10;
+        while (changeto != change_hero_idx && counter_cnt[hero[changeto]] < counter_cnt[hero[change_hero_idx]]) {
+          changeto = (changeto + 1) % 10;
+        }
+        document.getElementById("team_tank0").setAttribute("src", document.getElementById(hero[changeto]).getAttribute("src"));
+        document.getElementById("team_tank0").setAttribute("alt", document.getElementById(hero[changeto]).getAttribute("alt"));
+        document.getElementById("team_tank0").setAttribute("title", document.getElementById(hero[changeto]).getAttribute("title"));
+        document.getElementById("team_tank0").setAttribute("onclick", "change(" + num + "," + changeto + "," + another_hero_idx + ")");
+      }
+      else if (change_hero_idx <= 26) {
+        changeto %= 27;
+        if (changeto == 0) changeto += 10;
+        if (changeto == another_hero_idx) changeto++;
+        while (changeto != change_hero_idx && counter_cnt[hero[changeto]] < counter_cnt[hero[change_hero_idx]]) {
+          changeto = (changeto + 1) % 27;
+          if (changeto == 0) changeto += 10;
+          if (changeto == another_hero_idx) changeto++;
+        }
+        document.getElementById("team_dps" + num).setAttribute("src", document.getElementById(hero[changeto]).getAttribute("src"));
+        document.getElementById("team_dps" + num).setAttribute("alt", document.getElementById(hero[changeto]).getAttribute("alt"));
+        document.getElementById("team_dps" + num).setAttribute("title", document.getElementById(hero[changeto]).getAttribute("title"));
+        document.getElementById("team_dps" + num).setAttribute("onclick", "change(" + num + "," + changeto + "," + another_hero_idx + ")");
+
+        document.getElementById("team_dps" + ((num + 1) % 2)).setAttribute("onclick", "change(" + ((num + 1) % 2) + "," + another_hero_idx + "," + changeto + ")");
+      }
+      else if (change_hero_idx <= 34) {
+        changeto %= 35;
+        if (changeto == 0) changeto += 27;
+        if (changeto == another_hero_idx) changeto++;
+        while (changeto != change_hero_idx && counter_cnt[hero[changeto]] < counter_cnt[hero[change_hero_idx]]) {
+          changeto = (changeto + 1) % 35;
+          if (changeto == 0) changeto += 27;
+          if (changeto == another_hero_idx) changeto++;
+        }
+        document.getElementById("team_sup" + num).setAttribute("src", document.getElementById(hero[changeto]).getAttribute("src"));
+        document.getElementById("team_sup" + num).setAttribute("alt", document.getElementById(hero[changeto]).getAttribute("alt"));
+        document.getElementById("team_sup" + num).setAttribute("title", document.getElementById(hero[changeto]).getAttribute("title"));
+        document.getElementById("team_sup" + num).setAttribute("onclick", "change(" + num + "," + changeto + "," + another_hero_idx + ")");
+
+        document.getElementById("team_sup" + ((num + 1) % 2)).setAttribute("onclick", "change(" + ((num + 1) % 2) + "," + another_hero_idx + "," + changeto + ")");
+      }
+    }
+
+    function counter_counter(selected_hero_idx, f) {
+      if (f == 1) {
+        for (var i = 0; i < 4; i++) {
+          counter_cnt[counter_list[selected_hero_idx][i]]++;
+        }
+      }
+      else {
+        for (var i = 0; i < 4; i++) {
+          counter_cnt[counter_list[selected_hero_idx][i]]--;
+        }
+      }
+      //console.log(counter_cnt);
+    }
+
+    var last_choose;
+    function recommended() {
+      var id, recommend_item;
+      id = Math.floor(Math.random() * 10);
+      while (id == last_choose) {
+        id = Math.floor(Math.random() * 10);
+      }
+      recommend_item = document.getElementById("interest1");
+      recommend_item.setAttribute("src", "hero/tank" + String(id) + ".png");
+      recommend_item.setAttribute("alt", String(hero[id]));
+      recommend_item.setAttribute("title", String(hero[id]));
+      recommend_item.setAttribute("onclick", "call_intro(" + String(id) + ")");
+      id = Math.floor(Math.random() * 17);
+      while (id + 10 == last_choose) {
+        id = Math.floor(Math.random() * 17);
+      }
+      recommend_item = document.getElementById("interest2");
+      recommend_item.setAttribute("src", "hero/dps" + String(id) + ".png");
+      recommend_item.setAttribute("alt", String(hero[id + 10]));
+      recommend_item.setAttribute("title", String(hero[id + 10]));
+      recommend_item.setAttribute("onclick", "call_intro(" + String(id + 10) + ")");
+      id = Math.floor(Math.random() * 8);
+      while (id + 27 == last_choose) {
+        id = Math.floor(Math.random() * 8);
+      }
+      recommend_item = document.getElementById("interest3");
+      recommend_item.setAttribute("src", "hero/sup" + String(id) + ".png");
+      recommend_item.setAttribute("alt", String(hero[id + 27]));
+      recommend_item.setAttribute("title", String(hero[id + 27]));
+      recommend_item.setAttribute("onclick", "call_intro(" + String(id + 27) + ")");
+    }
+    function call_intro(selected_hero_idx) {
+      // console.log(selected_hero_idx);
+      $.ajax({
+        type: "GET",
+        url: "hero_info.json",
+        dataType: "json",
+        success: function (data) {
+          // console.log(data);
+          // console.log(data.hero);
+          //使用$.each方法遍歷返回的資料
+          $.each(data.hero, function (i, n) {
+            if (i == selected_hero_idx) {
+              // console.log(i);
+              // console.log(n);
+              // console.log(n.name);
+              document.getElementById("heroname").innerHTML = n["name"];
+              document.getElementById("from").innerHTML = n["from"];
+              document.getElementById("introhero").innerHTML = n["intro"];
+            }
+          })
+        },
+        error: function (xhr) {
+          window.alert("Error");
+        }
+      });
+      last_choose = selected_hero_idx;
+      recommended();
+    }
+    function intro_hero(selected_hero_idx) {
+      call_intro(selected_hero_idx);
+      document.getElementById("infoModal").showModal();
+    }
+    function info_close() {
+      document.getElementById("infoModal").close();
+    }
+    function call_kind(kind) {
+      if (kind == 0) {
+        $(".tank_kind").fadeTo("fast", 0.5);
+        $(".dps_kind").fadeTo("fast", 1);
+        $(".sup_kind").fadeTo("fast", 1);
+      }
+      else if (kind == 1) {
+        $(".tank_kind").fadeTo("fast", 1);
+        $(".dps_kind").fadeTo("fast", 0.5);
+        $(".sup_kind").fadeTo("fast", 1);
+      }
+      else if (kind == 2) {
+        $(".tank_kind").fadeTo("fast", 1);
+        $(".dps_kind").fadeTo("fast", 1);
+        $(".sup_kind").fadeTo("fast", 0.5);
+      }
+      $.ajax({
+        type: "GET",
+        url: "hero_kind.json",
+        dataType: "json",
+        success: function (data) {
+          // console.log(data);
+          // console.log(data.kind);
+          //使用$.each方法遍歷返回的資料
+          $.each(data.kind, function (i, n) {
+            if (i == kind) {
+              // console.log(i);
+              // console.log(n);
+              // console.log(n.name);
+              document.getElementById("kindname").innerHTML = n["name"];
+              document.getElementById("introkind").innerHTML = n["intro"];
+            }
+          })
+        },
+        error: function (xhr) {
+          window.alert("Error");
+        }
+      });
+    }
+    function intro_kind(kind) {
+      call_kind(kind);
+      document.getElementById("hero_kind").showModal();
+    }
+    function kind_close() {
+      document.getElementById("hero_kind").close();
+    }
+  </script>
+</head>
+
+<body onload=start()>
+  <audio id="bow" autoplay loop>
+    <source src="BOW.mp3" type="audio/mp3">
+  </audio>
+  <audio id="choose" src="choose.mp3"></audio>
+
+  <video id="intro" muted src="intro.mp4" class="backvideo"></video>
+
+  <div id="title_logo" class="title_logo">
+    <img id="logo" class="logo" alt="logo" src="logo.png" width="250"><br>
+    <img id="title" class="title" alt="title" src="title.png"> <strong>陣容模擬器</strong>
+  </div>
+
+  <div id="info" class="info">
+    <a href="Overwatch2 最佳陣容模擬器-01057001+01057107.pptx"><img src="ppt.png" alt="ppt" width="40"></a><br>
+    <img id="about" alt="about" src="about.png" width="40"><br>
+    <img id="music" src="play.png" alt="music" width="40">
+  </div>
+
+  <div class="container" id="percent">
+
+  </div>
+
+  <div id="start">
+    <img id="ult" class="start" alt="start" src="start.png" width="130">
+  </div>
+  <nav>
+    <div class="navbar" id="navbar" style="display:none">
+      <div class="dropdown">
+        <div class="dropbtn"> 英雄介紹 </div>
+        <div class="dropdown-content">
+          <div onclick="intro_hero(0)">垃圾鎮女王</div>
+          <div onclick="intro_hero(1)">席格馬</div>
+          <div onclick="intro_hero(2)">攔路豬</div>
+          <div onclick="intro_hero(3)">札莉雅</div>
+          <div onclick="intro_hero(4)">歐瑞莎</div>
+          <div onclick="intro_hero(5)">毀滅拳王</div>
+          <div onclick="intro_hero(6)">溫斯頓</div>
+          <div onclick="intro_hero(7)">火爆鋼球</div>
+          <div onclick="intro_hero(8)">萊茵哈特</div>
+          <div onclick="intro_hero(9)">D.VA</div>
+          <div onclick="intro_hero(10)">半藏</div>
+          <div onclick="intro_hero(11)">卡西迪</div>
+          <div onclick="intro_hero(12)">壁壘機兵</div>
+          <div onclick="intro_hero(13)">士兵76</div>
+          <div onclick="intro_hero(14)">奪命女</div>
+          <div onclick="intro_hero(15)">小美</div>
+          <div onclick="intro_hero(16)">托比昂</div>
+          <div onclick="intro_hero(17)">死神</div>
+          <div onclick="intro_hero(18)">法拉</div>
+          <div onclick="intro_hero(19)">源氏</div>
+          <div onclick="intro_hero(20)">炸彈鼠</div>
+          <div onclick="intro_hero(21)">索潔恩</div>
+          <div onclick="intro_hero(22)">艾西</div>
+          <div onclick="intro_hero(23)">辛梅塔</div>
+          <div onclick="intro_hero(24)">迴音</div>
+          <div onclick="intro_hero(25)">閃光</div>
+          <div onclick="intro_hero(26)">駭影</div>
+          <div onclick="intro_hero(27)">安娜</div>
+          <div onclick="intro_hero(28)">巴帝斯特</div>
+          <div onclick="intro_hero(29)">慈悲</div>
+          <div onclick="intro_hero(30)">碧姬</div>
+          <div onclick="intro_hero(31)">禪亞塔</div>
+          <div onclick="intro_hero(32)">莫伊拉</div>
+          <div onclick="intro_hero(33)">路西歐</div>
+          <div onclick="intro_hero(34)">霧子</div>
+        </div>
+      </div>
+    </div>
+    <div class="navbar" id="navbar2" style="display:none">
+      <div class="dropdown">
+        <div class="dropbtn"> 英雄類型 </div>
+        <div class="dropdown-content">
+          <div onclick="intro_kind(0)">肉盾型</div>
+          <div onclick="intro_kind(1)">攻擊型</div>
+          <div onclick="intro_kind(2)">輔助型</div>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <dialog id="infoModal">
+    <img src="x.png" alt="close" title="關閉" id="clo" height="40px" width="40px" onclick="info_close()"
+      style="float: right; border: 1px solid rgb(255, 140, 0); display: inline;">
+    <div class="intro_main"><br>
+      <h1 style="display: inline; border-bottom: rgba(255, 255, 255, 0) 2px;">英雄介紹</h1>
+      <div class="intro_sub">
+        <h2 class="heroname" id="heroname" style="font-weight: bold;
+      color: rgb(255, 69, 0);"></h2>
+        <p class="from" style="text-indent: 1em;">
+          <img src="loc.png" alt="loc" title="loc" height="16px" width="16px">
+          <span id="from"></span>
+        </p>
+        <h3 style="color: rgb(255, 140, 0);">簡介</h3>
+        <p class="introhero" id="introhero" style="text-indent: 1em; text-align: justify;"></p>
+        <br>
+        <div style="position: absolute; bottom: 0px;">
+          <h3 style="color: rgb(255, 140, 0); font-weight: bold;">你可能感興趣的英雄
+            <img src="refresh.png" alt="refresh" title="刷新" height="16px" width="16px" onclick="recommended(-1)"
+              style="display: inline;">
+          </h3>
+          <img src="" class="interesting" id="interest1" alt="" title="" onclick="" width="80px">
+          <img src="" class="interesting" id="interest2" alt="" title="" onclick="" width="80px">
+          <img src="" class="interesting" id="interest3" alt="" title="" onclick="" width="80px">
+        </div>
+      </div>
+    </div>
+  </dialog>
+  <dialog id="hero_kind">
+    <img src="x.png" alt="close" title="關閉" id="clo" height="40px" width="40px" onclick="kind_close()"
+      style="float: right; border: 1px solid rgb(255, 140, 0); display: inline;">
+    <div class="intro_main"><br>
+      <h1 style="display: inline; border-bottom: rgba(255, 255, 255, 0) 2px;">英雄類型介紹</h1>
+      <div class="intro_sub">
+        <img src="hero/tank.png" id="tank_kind" class="tank_kind" alt="tank" title="tank" height="5%"
+          onclick="call_kind(0)" style="float: right; display: inline; vertical-align: middle;">
+        <img src="hero/dps.png" id="dps_kind" class="dps_kind" alt="dps" title="dps" height="5%" onclick="call_kind(1)"
+          style="float: right; display: inline; vertical-align: middle;">
+        <img src="hero/sup.png" id="sup_kind" class="sup_kind" alt="sup" title="sup" height="5%" onclick="call_kind(2)"
+          style="float: right; display: inline; vertical-align: middle;">
+        <h2 class="kindname" id="kindname" style="font-weight: bold;
+            color: rgb(255, 69, 0);  border-bottom: rgba(255, 255, 255, 0) 1px;"></h2>
+        <h3 style="color: rgb(255, 140, 0);">簡介</h3>
+        <p class="introkind" id="introkind" style="text-indent: 1em; text-align: justify;"></p>
+      </div>
+    </div>
+  </dialog>
+  <div id="enemy" class="enemy" style="display:none">
+    <strong>敵方隊伍</strong>
+    <div style="text-align:center; width: 20%;">
+      <img src="hero/blank.png" class='Hero' alt="enemy_tank" id='enemy_tank0' onclick="">
+    </div>
+    <div style="text-align:center; width: 20%;">
+      <img src="hero/blank.png" class='Hero' alt="enemy_dps" id='enemy_dps0' onclick="">
+      <img src="hero/blank.png" class='Hero' alt="enemy_dps" id='enemy_dps1' onclick="">
+    </div>
+    <div style="text-align:center; width: 20%;">
+      <img src="hero/blank.png" class='Hero' alt="enemy_sup" id='enemy_sup0' onclick="">
+      <img src="hero/blank.png" class='Hero' alt="enemy_sup" id='enemy_sup1' onclick="">
+    </div>
+  </div>
+
+  <p id="choose_team" class="choose_team" style="display:none"><strong>可點選我方英雄進行更換</strong></p>
+  <div id="team" class="team" style="display:none">
+    <strong>我方隊伍</strong>
+    <div style="text-align:center; width: 20%; overflow: scroll;">
+      <img src="hero/blank.png" class='Hero' alt="tank" id='team_tank0'>
+    </div>
+    <div style="text-align:center; width: 20%; overflow: scroll;">
+      <img src="hero/blank.png" class='Hero' alt="dps" id='team_dps0'>
+      <img src="hero/blank.png" class='Hero' alt="dps" id='team_dps1'>
+    </div>
+    <div style="text-align:center; width: 20%; overflow: scroll;">
+      <img src="hero/blank.png" class='Hero' alt="sup" id='team_sup0'>
+      <img src="hero/blank.png" class='Hero' alt="sup" id='team_sup1'>
+    </div>
+  </div>
+
+  <p id="choose_hero" class="choose_hero" style="display:none"><strong>點選敵方英雄</strong></p>
+  <div id="hero" class="hero" style="display:none">
+    <img src="hero/tank.png" alt="tank" title="tank" height="10%">
+    <div style="text-align:center; width: 20%; overflow: scroll;">
+      <img src="hero/tank0.png" class="Hero" id="垃圾鎮女王" alt="垃圾鎮女王" title="垃圾鎮女王" onclick="select(0)">
+      <img src="hero/tank1.png" class="Hero" id="席格馬" alt="席格馬" title="席格馬" onclick="select(1)">
+      <img src="hero/tank2.png" class="Hero" id="攔路豬" alt="攔路豬" title="攔路豬" onclick="select(2)">
+      <img src="hero/tank3.png" class="Hero" id="札莉雅" alt="札莉雅" title="札莉雅" onclick="select(3)">
+      <img src="hero/tank4.png" class="Hero" id="歐瑞莎" alt="歐瑞莎" title="歐瑞莎" onclick="select(4)">
+      <img src="hero/tank5.png" class="Hero" id="毀滅拳王" alt="毀滅拳王" title="毀滅拳王" onclick="select(5)">
+      <img src="hero/tank6.png" class="Hero" id="溫斯頓" alt="溫斯頓" title="溫斯頓" onclick="select(6)">
+      <img src="hero/tank7.png" class="Hero" id="火爆鋼球" alt="火爆鋼球" title="火爆鋼球" onclick="select(7)">
+      <img src="hero/tank8.png" class="Hero" id="萊茵哈特" alt="萊茵哈特" title="萊茵哈特" onclick="select(8)">
+      <img src="hero/tank9.png" class="Hero" id="DVA" alt="DVA" title="DVA" onclick="select(9)">
+    </div>
+    <img src="hero/dps.png" alt="dps" title="dps" height="10%">
+    <div style="text-align:center; width: 38%; overflow: scroll;">
+      <img src="hero/dps0.png" class="Hero" id="半藏" alt="半藏" title="半藏" onclick="select(10)">
+      <img src="hero/dps1.png" class="Hero" id="卡西迪" alt="卡西迪" title="卡西迪" onclick="select(11)">
+      <img src="hero/dps2.png" class="Hero" id="壁壘機兵" alt="壁壘機兵" title="壁壘機兵" onclick="select(12)">
+      <img src="hero/dps3.png" class="Hero" id="士兵76" alt="士兵76" title="士兵76" onclick="select(13)">
+      <img src="hero/dps4.png" class="Hero" id="奪命女" alt="奪命女" title="奪命女" onclick="select(14)">
+      <img src="hero/dps5.png" class="Hero" id="小美" alt="小美" title="小美" onclick="select(15)">
+      <img src="hero/dps6.png" class="Hero" id="托比昂" alt="托比昂" title="托比昂" onclick="select(16)">
+      <img src="hero/dps7.png" class="Hero" id="死神" alt="死神" title="死神" onclick="select(17)">
+      <img src="hero/dps8.png" class="Hero" id="法拉" alt="法拉" title="法拉" onclick="select(18)">
+      <img src="hero/dps9.png" class="Hero" id="源氏" alt="源氏" title="源氏" onclick="select(19)">
+      <img src="hero/dps10.png" class="Hero" id="炸彈鼠" alt="炸彈鼠" title="炸彈鼠" onclick="select(20)">
+      <img src="hero/dps11.png" class="Hero" id="索潔恩" alt="索潔恩" title="索潔恩" onclick="select(21)">
+      <img src="hero/dps12.png" class="Hero" id="艾西" alt="艾西" title="艾西" onclick="select(22)">
+      <img src="hero/dps13.png" class="Hero" id="辛梅塔" alt="辛梅塔" title="辛梅塔" onclick="select(23)">
+      <img src="hero/dps14.png" class="Hero" id="迴音" alt="迴音" title="迴音" onclick="select(24)">
+      <img src="hero/dps15.png" class="Hero" id="閃光" alt="閃光" title="閃光" onclick="select(25)">
+      <img src="hero/dps16.png" class="Hero" id="駭影" alt="駭影" title="駭影" onclick="select(26)">
+    </div>
+    <img src="hero/sup.png" alt="sup" title="sup" height="10%">
+    <div style="text-align:center; width: 20%; overflow: scroll;">
+      <img src="hero/sup0.png" class="Hero" id="安娜" alt="安娜" title="安娜" onclick="select(27)">
+      <img src="hero/sup1.png" class="Hero" id="巴帝斯特" alt="巴帝斯特" title="巴帝斯特" onclick="select(28)">
+      <img src="hero/sup2.png" class="Hero" id="慈悲" alt="慈悲" title="慈悲" onclick="select(29)">
+      <img src="hero/sup3.png" class="Hero" id="碧姬" alt="碧姬" title="碧姬" onclick="select(30)">
+      <img src="hero/sup4.png" class="Hero" id="禪亞塔" alt="禪亞塔" title="禪亞塔" onclick="select(31)">
+      <img src="hero/sup5.png" class="Hero" id="莫伊拉" alt="莫伊拉" title="莫伊拉" onclick="select(32)">
+      <img src="hero/sup6.png" class="Hero" id="路西歐" alt="路西歐" title="路西歐" onclick="select(33)">
+      <img src="hero/sup7.png" class="Hero" id="霧子" alt="霧子" title="霧子" onclick="select(34)">
+    </div>
+  </div>
+</body>
+
+</html>
